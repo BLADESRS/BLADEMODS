@@ -5,31 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BLADE MODS Login</title>
     <style>
-        body {
+        body, html {
             margin: 0;
             padding: 0;
+            height: 100%;
             overflow: hidden;
             font-family: Arial, sans-serif;
         }
-        /* Animated background for linear1 and linear2 */
-        .dragon-bg {
-            position: absolute;
+
+        /* Background Particle Animation */
+        .particles {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('https://media.giphy.com/media/LpD72VztETujy/giphy.gif') no-repeat center center fixed;
-            background-size: cover;
-            animation: backgroundAnimation 10s infinite;
-        }
-        
-        @keyframes backgroundAnimation {
-            0% { background-position: 0 0; }
-            50% { background-position: 100% 100%; }
-            100% { background-position: 0 0; }
+            pointer-events: none;
+            z-index: -1;
         }
 
-        #linear1, #linear2 {
+        .linear1, .linear2 {
             display: none;
             position: absolute;
             top: 50%;
@@ -37,10 +32,18 @@
             transform: translate(-50%, -50%);
             text-align: center;
             color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
         }
 
-        #linear1 {
+        .linear1 {
             display: block;
+            background-color: black;
+        }
+
+        .linear2 {
+            background-color: black;
         }
 
         button {
@@ -68,11 +71,11 @@
 </head>
 <body>
 
-    <!-- Background Animation -->
-    <div class="dragon-bg"></div>
+    <!-- Particle Background -->
+    <canvas class="particles"></canvas>
 
     <!-- Login Page (linear1) -->
-    <div id="linear1">
+    <div id="linear1" class="linear1">
         <h2 id="textview1" class="text-view">BLADE MODS</h2>
         <input type="text" id="username" placeholder="Enter Username"><br><br>
         <input type="password" id="password" placeholder="Enter Password"><br><br>
@@ -81,7 +84,7 @@
     </div>
 
     <!-- Second Page (linear2) -->
-    <div id="linear2">
+    <div id="linear2" class="linear2">
         <h2 id="textview5" class="text-view">BLADE MODS</h2>
         <h3>Period: <span id="textview6"></span></h3>
         <h3>Time Left: <span id="textview7"></span></h3>
@@ -93,6 +96,63 @@
     <script>
         let canCheckResult = false;
         
+        // Particle Animation
+        const canvas = document.querySelector('.particles');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function Particle(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.size = Math.random() * 3 + 1;
+            this.speedX = Math.random() * 3 - 1.5;
+            this.speedY = Math.random() * 3 - 1.5;
+            this.color = color;
+        }
+
+        Particle.prototype.update = function() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.size > 0.2) this.size -= 0.1;
+        };
+
+        Particle.prototype.draw = function() {
+            ctx.fillStyle = this.color;
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        };
+
+        function createParticles(e) {
+            let color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            let xPos = e.x;
+            let yPos = e.y;
+
+            for (let i = 0; i < 5; i++) {
+                particles.push(new Particle(xPos, yPos, color));
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((particle, index) => {
+                particle.update();
+                particle.draw();
+                if (particle.size <= 0.2) {
+                    particles.splice(index, 1);
+                }
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        canvas.addEventListener('mousemove', createParticles);
+        animateParticles();
+
         // Login functionality
         function login() {
             const username = document.getElementById("username").value;
