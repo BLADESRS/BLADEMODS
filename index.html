@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Animation & Timer</title>
+    <style>
+        body {
+            background: linear-gradient(to right, black, #333);
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: #00FF00; /* Glowing green */
+            animation: move 1s infinite;
+        }
+
+        @keyframes move {
+            0% {
+                transform: translateX(0) translateY(0);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateX(50px) translateY(50px);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateX(-50px) translateY(-50px);
+                opacity: 0.8;
+            }
+        }
+
+        #textview1, #textview2, #textview3 {
+            font-size: 24px;
+            margin: 10px;
+        }
+
+        #textview3 {
+            font-size: 32px;
+            font-weight: bold;
+            color: #00FF00; /* Glowing Green */
+        }
+
+        .button {
+            background-color: #00FF00;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .button:active {
+            background-color: #33cc33;
+        }
+
+        .listview {
+            list-style-type: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: scroll;
+            width: 200px;
+            margin-top: 20px;
+            border: 2px solid #00FF00;
+        }
+
+        .listview li {
+            background-color: black;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+
+        .listview li:nth-child(odd) {
+            background-color: #1a1a1a;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div id="textview1">Loading...</div>
+    <div id="textview2">00:00</div>
+    <div id="textview3">Result: Waiting</div>
+
+    <button class="button" id="checkResultButton">Check Result</button>
+    <button class="button" id="historyButton">History</button>
+
+    <ul class="listview" id="resultList"></ul>
+
+    <script>
+        let previousValue = "";
+
+        // Generate particles
+        function generateParticles() {
+            const particlesContainer = document.getElementById("particles");
+            setInterval(() => {
+                const particle = document.createElement("div");
+                particle.classList.add("particle");
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                particlesContainer.appendChild(particle);
+                setTimeout(() => {
+                    particlesContainer.removeChild(particle);
+                }, 1000);
+            }, 200);
+        }
+
+        generateParticles();
+
+        // Timer function
+        function startTimer() {
+            const textview1 = document.getElementById('textview1');
+            const textview2 = document.getElementById('textview2');
+            const textview3 = document.getElementById('textview3');
+            const resultList = document.getElementById('resultList');
+
+            const timer = setInterval(() => {
+                const now = new Date();
+                const seconds = now.getSeconds();
+                const remainingSeconds = 60 - seconds;
+                const minutes = now.getMinutes();
+                const totalMinutes = now.getHours() * 60 + minutes;
+
+                // Update textview1 with a formatted date and total minutes
+                textview1.innerHTML = `${now.getFullYear()}${now.getMonth() + 1}${now.getDate()}1000${(10001 + totalMinutes)}`;
+
+                // Update textview2 with the timer count down in mm:ss
+                textview2.innerHTML = `${String(0).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+            }, 1000);
+
+            // Check Result Button
+            document.getElementById('checkResultButton').addEventListener('click', function () {
+                if (textview1.innerHTML !== previousValue) {
+                    textview3.innerHTML = Math.random() > 0.5 ? "Big" : "Small";
+                    const listItem = document.createElement('li');
+                    listItem.textContent = textview3.innerHTML;
+                    resultList.appendChild(listItem);
+                    previousValue = textview1.innerHTML;
+                } else {
+                    textview3.innerHTML = "Wait For Next Period";
+                }
+            });
+
+            // History Button (Not implemented functionality for this example)
+            document.getElementById('historyButton').addEventListener('click', function () {
+                alert('History functionality not implemented.');
+            });
+        }
+
+        startTimer();
+    </script>
+</body>
+</html>
